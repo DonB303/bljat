@@ -122,11 +122,11 @@ while True:
     Keys = pygame.key.get_pressed()
     if Keys[pygame.K_d]:
         xp += vel
-    if Keys[pygame.K_a]:
+    elif Keys[pygame.K_a]:
         xp -= vel
-    if Keys[pygame.K_w]:
+    elif Keys[pygame.K_w]:
         yp -= vel
-    if Keys[pygame.K_s]:
+    elif Keys[pygame.K_s]:
         yp += vel
 
     # Schießen (linke Maustaste gedrückt und Munition vorhanden)

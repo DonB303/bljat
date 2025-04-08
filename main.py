@@ -1,0 +1,35 @@
+#Imports
+import sys
+import pygame
+from pygame.locals import *
+
+#Initialization
+pygame.init()
+pygame.display.set_caption("Bro u gay")
+
+#Screen vars
+WIDTH, HEIGHT = 640, 480 #<--- change for different Window size
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+
+#Clock 
+fps = 60
+fpsClock = pygame.time.Clock()
+
+ 
+# Game loop.
+while True:
+  #Background colors
+  screen.fill((0, 0, 0))
+  
+  #Quit function (So that you can exit on press of cross and escape)
+  for event in pygame.event.get():
+    if event.type == QUIT:
+      pygame.quit()
+      sys.exit()
+  
+  # Update.
+  
+  # Draw.
+  
+  pygame.display.flip()
+  fpsClock.tick(fps)

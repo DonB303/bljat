@@ -1,62 +1,156 @@
-#Imports
+# Imports
 import sys
 import os
 import pygame
 from pygame.locals import *
+import math
+import time
 
-#Initialization
+# Initialisierung
 pygame.init()
 pygame.display.set_caption("Bro u gay")
 
-#Screen vars
+# Bildschirm-Variablen
 WIDTH, HEIGHT = 800, 450
 W_WIDTH, W_HEIGHT = 800, 450
-screen = pygame.display.set_mode((W_WIDTH, W_HEIGHT), RESIZABLE)
+screen = pygame.display.set_mode((W_WIDTH, W_HEIGHT), RESIZABLE)  # Normaler Fenstermodus
 surface = pygame.Surface((WIDTH, HEIGHT))
 
-#Clock 
+# Clock
 fps = 60
 fpsClock = pygame.time.Clock()
 
-#Player Variables
+# Spieler-Variablen
 player = pygame.image.load('player.png')
-x = 50
-y = 50
+player_rect = player.get_rect()  # Rechteck für den Spieler, um die Position zu verfolgen
+x, y = 50, 50
 vel = 5
+
+# Cursor-Image laden
+cursor_image = pygame.image.load('cursor.png')  # Cursor-Bild
+cursor_rect = cursor_image.get_rect()
+
+# Maus-Position lock
+pygame.mouse.set_visible(False)  # Mauszeiger unsichtbar machen
+
+# Projektile
+projectiles = []
+bullet_image = pygame.image.load('bullet.png')  # Lade das Projektilbild
+
+# Munition und Feuerrate
+max_ammo = 100  # Maximale Munition
+ammo = max_ammo  # Aktuelle Munition
+fire_rate = 0.05  # Feuerrate (Sekunden pro Schuss)
+last_shot_time = 0  # Zeit des letzten Schusses
+reload_time = 4  # Nachladezeit in Sekunden
+last_reload_time = 0  # Zeit des letzten Nachladens
+is_reloading = False  # Nachladen ist inaktiv zu Beginn
 
 # Game Loop
 while True:
-    #Background colors
+    # Hintergrundfarbe
     surface.fill((0, 225, 0))
 
-    #Quit function (So that you can exit on press of cross and escape)
+    # Quit-Funktion (damit du das Spiel mit ESC oder dem Kreuz schließen kannst)
     for event in pygame.event.get():
         if event.type == QUIT:
-          pygame.quit()
-          sys.exit()
-  
-    #UPDATE
+            pygame.quit()
+            sys.exit()
+        # ESC-Taste zum Beenden
+        if event.type == KEYDOWN:
+            if event.key == K_ESCAPE:
+                pygame.quit()
+                sys.exit()
+            # Nachladen mit der R-Taste
+            if event.key == K_r and not is_reloading and ammo < max_ammo:
+                is_reloading = True
+                last_reload_time = time.time()  # Nachladen starten
 
+    # Maus-Position
+    mouse_x, mouse_y = pygame.mouse.get_pos()
 
-    #Key Press Registration
+    # Berechnung des Winkels zwischen dem Spieler und der Maus
+    dx = mouse_x - (x + player_rect.width / 2)  # Spieler-Mitte für Drehung
+    dy = mouse_y - (y + player_rect.height / 2)
+    angle = math.degrees(math.atan2(dy, dx))  # Winkel in Grad
+
+    # Drehen des Spieler-Bildes
+    rotated_player = pygame.transform.rotate(player, -angle)  # Negativ, weil Pygame im Uhrzeigersinn dreht
+    rotated_rect = rotated_player.get_rect(center=(x + player_rect.width // 2, y + player_rect.height // 2))
+
+    # Tastenregistrierung für Bewegung
     Keys = pygame.key.get_pressed()
-
     if Keys[pygame.K_d]:
-       x += vel
-    
+        x += vel
     if Keys[pygame.K_a]:
-       x -= vel
-    
+        x -= vel
     if Keys[pygame.K_w]:
-       y -= vel
-    
+        y -= vel
     if Keys[pygame.K_s]:
-       y += vel
+        y += vel
 
-    #Paint on screen
-    surface.blit(player, (x,y))
-    screen.blit(surface, (0,0))
+    # Schießen (linke Maustaste gedrückt und Munition vorhanden)
+    if pygame.mouse.get_pressed()[0] and ammo > 0 and not is_reloading:
+        current_time = time.time()
+        if current_time - last_shot_time >= fire_rate:  # Überprüfe Feuerrate
+            # Berechnung des Winkels zwischen dem Spieler und der Maus
+            angle = math.degrees(math.atan2(dy, dx))
+            # Erstellen eines neuen Projektils
+            speed = 20  # Geschwindigkeit des Projektils
+            projectiles.append({
+                'x': x + player_rect.width / 2,
+                'y': y + player_rect.height / 2,
+                'angle': angle,
+                'speed': speed
+            })
+            ammo -= 1  # Munitionsverbrauch
+            last_shot_time = current_time  # Update der letzten Schusszeit
 
-    #Settings
+    # Nachladen-Logik
+    if is_reloading:
+        if time.time() - last_reload_time >= reload_time:
+            ammo = max_ammo  # Munition auf Maximum setzen
+            is_reloading = False  # Nachladen beendet
+
+    # Bewege alle Projektile
+    for projectile in projectiles[:]:
+        # Berechne die Bewegung des Projektils basierend auf dem Winkel
+        proj_dx = math.cos(math.radians(projectile['angle'])) * projectile['speed']
+        proj_dy = math.sin(math.radians(projectile['angle'])) * projectile['speed']
+
+        projectile['x'] += proj_dx
+        projectile['y'] += proj_dy
+
+        # Entferne Projektile, die aus dem Bildschirm rausgehen
+        if not (0 <= projectile['x'] <= WIDTH and 0 <= projectile['y'] <= HEIGHT):
+            projectiles.remove(projectile)
+
+    # Malen auf dem Bildschirm
+    surface.blit(rotated_player, rotated_rect.topleft)  # Zeichne das gedrehte Bild
+
+    # Zeichne Projektile
+    for projectile in projectiles:
+        surface.blit(bullet_image, (int(projectile['x']), int(projectile['y'])))  # Zeichne das Projektil als 'bullet.png'
+
+    # Munition anzeigen
+    font = pygame.font.Font(None, 36)
+    ammo_text = font.render(f'Ammo: {ammo}/{max_ammo}', True, (255, 255, 255))
+    surface.blit(ammo_text, (10, 10))
+
+    # Ladebalken für Nachladen
+    if is_reloading:
+        reload_text = font.render(f'Reloading...', True, (255, 255, 255))
+        surface.blit(reload_text, (WIDTH - 150, 10))
+
+    # Bildschirm aktualisieren
+    screen.blit(surface, (0, 0))
+
+    # Setze die Position des Cursors auf die Mausposition
+    cursor_rect.center = (mouse_x, mouse_y)
+
+    # Zeichne den Cursor auf dem Bildschirm
+    screen.blit(cursor_image, cursor_rect.topleft)
+
+    # Bildschirm aktualisieren
     pygame.display.flip()
     fpsClock.tick(fps)

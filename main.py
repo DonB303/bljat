@@ -50,9 +50,9 @@ is_reloading = False  # Nachladen ist inaktiv zu Beginn
 TILE_SIZE = 16
 
 tiles = {
-    0: pygame.image.load("assets/tiles/grasstile.png"),
-    1: pygame.image.load("assets/tiles/groundtile.png"),
-    2: pygame.image.load("assets/tiles/watertile.png"),
+    0: pygame.image.load("assets/tiles/grasstile.png"), #Grass
+    1: pygame.image.load("assets/tiles/groundtile.png"), #Ground
+    2: pygame.image.load("assets/tiles/watertile.png"), #Water
 }
 
 tilemap = [

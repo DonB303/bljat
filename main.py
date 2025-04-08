@@ -11,8 +11,8 @@ pygame.init()
 pygame.display.set_caption("Bro u gay")
 
 # Bildschirm-Variablen
-WIDTH, HEIGHT = 800, 450
-W_WIDTH, W_HEIGHT = 800, 450
+WIDTH, HEIGHT = 800, 448
+W_WIDTH, W_HEIGHT = 800, 448
 screen = pygame.display.set_mode((W_WIDTH, W_HEIGHT), RESIZABLE)  # Normaler Fenstermodus
 surface = pygame.Surface((WIDTH, HEIGHT))
 
@@ -23,11 +23,11 @@ fpsClock = pygame.time.Clock()
 # Spieler-Variablen
 player = pygame.image.load('player.png')
 player_rect = player.get_rect()  # Rechteck für den Spieler, um die Position zu verfolgen
-x, y = 50, 50
+xp, yp = 50, 50
 vel = 5
 
 # Cursor-Image laden
-cursor_image = pygame.image.load('cursor.png')  # Cursor-Bild
+cursor_image = pygame.image.load('assets/cursor.png')  # Cursor-Bild
 cursor_rect = cursor_image.get_rect()
 
 # Maus-Position lock
@@ -35,7 +35,7 @@ pygame.mouse.set_visible(False)  # Mauszeiger unsichtbar machen
 
 # Projektile
 projectiles = []
-bullet_image = pygame.image.load('bullet.png')  # Lade das Projektilbild
+bullet_image = pygame.image.load('assets/bullet.png')  # Lade das Projektilbild
 
 # Munition und Feuerrate
 max_ammo = 100  # Maximale Munition
@@ -45,6 +45,46 @@ last_shot_time = 0  # Zeit des letzten Schusses
 reload_time = 4  # Nachladezeit in Sekunden
 last_reload_time = 0  # Zeit des letzten Nachladens
 is_reloading = False  # Nachladen ist inaktiv zu Beginn
+
+#Timemap
+TILE_SIZE = 16
+
+tiles = {
+    0: pygame.image.load("assets/tiles/grasstile.png"),
+    1: pygame.image.load("assets/tiles/groundtile.png"),
+    2: pygame.image.load("assets/tiles/watertile.png"),
+}
+
+tilemap = [
+    [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+    [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+    [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+    [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+    [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+    [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+    [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+    [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+    [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+    [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+    [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+    [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+    [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+    [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+    [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+    [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+    [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+    [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+    [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+    [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+    [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+    [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+    [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+    [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+    [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+    [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+    [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+    [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 2, 2, 2, 2, 2, 2, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+]
 
 # Game Loop
 while True:
@@ -70,24 +110,24 @@ while True:
     mouse_x, mouse_y = pygame.mouse.get_pos()
 
     # Berechnung des Winkels zwischen dem Spieler und der Maus
-    dx = mouse_x - (x + player_rect.width / 2)  # Spieler-Mitte für Drehung
-    dy = mouse_y - (y + player_rect.height / 2)
+    dx = mouse_x - (xp + player_rect.width / 2)  # Spieler-Mitte für Drehung
+    dy = mouse_y - (yp + player_rect.height / 2)
     angle = math.degrees(math.atan2(dy, dx))  # Winkel in Grad
 
     # Drehen des Spieler-Bildes
     rotated_player = pygame.transform.rotate(player, -angle)  # Negativ, weil Pygame im Uhrzeigersinn dreht
-    rotated_rect = rotated_player.get_rect(center=(x + player_rect.width // 2, y + player_rect.height // 2))
+    rotated_rect = rotated_player.get_rect(center=(xp + player_rect.width // 2, yp + player_rect.height // 2))
 
     # Tastenregistrierung für Bewegung
     Keys = pygame.key.get_pressed()
     if Keys[pygame.K_d]:
-        x += vel
+        xp += vel
     if Keys[pygame.K_a]:
-        x -= vel
+        xp -= vel
     if Keys[pygame.K_w]:
-        y -= vel
+        yp -= vel
     if Keys[pygame.K_s]:
-        y += vel
+        yp += vel
 
     # Schießen (linke Maustaste gedrückt und Munition vorhanden)
     if pygame.mouse.get_pressed()[0] and ammo > 0 and not is_reloading:
@@ -98,8 +138,8 @@ while True:
             # Erstellen eines neuen Projektils
             speed = 20  # Geschwindigkeit des Projektils
             projectiles.append({
-                'x': x + player_rect.width / 2,
-                'y': y + player_rect.height / 2,
+                'x': xp + player_rect.width / 2,
+                'y': yp + player_rect.height / 2,
                 'angle': angle,
                 'speed': speed
             })
@@ -124,6 +164,15 @@ while True:
         # Entferne Projektile, die aus dem Bildschirm rausgehen
         if not (0 <= projectile['x'] <= WIDTH and 0 <= projectile['y'] <= HEIGHT):
             projectiles.remove(projectile)
+
+    #DRAW ON SCREEN
+
+    for rowindex, row in enumerate(tilemap):
+        for colindex, tile_id in enumerate(row):
+           x = colindex * TILE_SIZE
+           y = rowindex * TILE_SIZE
+           tile_image = tiles[tile_id]
+           surface.blit(tile_image, (x,y))
 
     # Malen auf dem Bildschirm
     surface.blit(rotated_player, rotated_rect.topleft)  # Zeichne das gedrehte Bild
